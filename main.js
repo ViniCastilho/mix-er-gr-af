@@ -82,8 +82,8 @@ function afCallCreate() {
 	elm.classList.add('af-state');
 	let rem = window.getComputedStyle(document.body).getPropertyValue('font-size');
 	rem = parseInt(rem.slice(0,-2));
-	elm.style.top = `${(3*rem)+afCanvas.offsetTop}px`;
-	elm.style.left = `${(count*3*rem)+afCanvas.offsetLeft}px`;
+	elm.style.top = `${(5*rem)+afCanvas.offsetTop}px`;
+	elm.style.left = `${(count*5*rem)+afCanvas.offsetLeft}px`;
 	elm.draggable = true;
 	afParent.appendChild(elm);
 	afConnections.push({});
@@ -156,7 +156,7 @@ function findClosestState(x, y) {
 	return closest;
 }
 
-function doubleClickState(x, y) {
+function doubleClickState(x, y, symb) {
 	if (!afTransitionMode) {
 		let target = afParent.children[findClosestState(x, y)];
 		target.classList.toggle('final');
@@ -168,7 +168,9 @@ function doubleClickState(x, y) {
 		return;
 	}
 	let other = findClosestState(x, y);
-	let symb = prompt('Insira um símbolo para a transição:');
+	if (typeof symb === 'undefined') {
+		symb = prompt('Insira um símbolo para a transição:');
+	}
 	let stateA = afParent.children[afTransitionStart];
 	let stateB = afParent.children[other];
 	if (symb !== null && symb !== '') {
@@ -199,7 +201,7 @@ function redraw() {
 				offset[String(v)] = 0;
 			}
 			if (v === i) {
-				ctx.fillText(k,px-20,py+18+(offset[String(v)]*11))
+				ctx.fillText(k,px,py-18-(offset[String(v)]*11))
 			} else {
 				ctx.beginPath();
 				ctx.moveTo(px, py);
@@ -237,6 +239,7 @@ function grtoer() {
 }
 
 function grtoaf() {
+	afCallClear();
 	let known = [ document.querySelector('#gr-l0').value ];
 	let final = {};
 	for (let i = 0; i < grEquationList.length; i++) {
@@ -246,14 +249,31 @@ function grtoaf() {
 		if (!known.includes(left)) { known.push(left); }
 		let next = right.slice(-1);
 		if (right.length === 0 || right === 'λ') {
-			final[left] = true;
+			afParent.children[known.indexOf(left)].classList.add('final');
 			next = null;
+			right = '';
+		} else if (!known.includes(next)) {
+			known.push(next);
+		}
+		if (afParent.children.length < known.length) {
+			for (let j = afParent.children.length; j < known.length; j++) {
+				afCallCreate();
+			}
 		}
 		afTransitionStart = known.indexOf(left);
+		console.log(left, next, afTransitionStart, known.indexOf(next));
+		console.log(right, right.slice(0,-1));
 		if (next === null) {
-			doubleClickState();
+			let elm = afParent.children[afTransitionStart];
+			doubleClickState(elm.offsetLeft, elm.offsetTop, right.slice(0,-1));
+		} else {
+			let idx = known.indexOf(next);
+			let elm = afParent.children[idx];
+			let fst = afParent.children[afTransitionStart];
+			doubleClickState(elm.offsetLeft, elm.offsetTop, right.slice(0,-1));
 		}
 	}
+	redraw();
 }
 
 function aftoer() {
