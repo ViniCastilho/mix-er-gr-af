@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <link rel='stylesheet' href='style.css'>
+        <script src='main.js' defer></script>
+        <title>LFTC-CONV</title>
+    </head>
+    <body>
+        <div id='div-er'>
+            <button id='er-gr'>COPIAR GRAMÁTICA REGULAR</button>
+            <br><br>
+            <button id='er-af'>COPIAR AUTÔMATO FINITO</button>
+            <br><br>
+            <b>EXPRESSÃO REGULAR</b>
+            <br><br>
+            <input type='text' id='er-rule' placeholder='^$'>
+        </div>
+        <br><hr><br>
+        <div id='div-gr'>
+            <button id='gr-er'>COPIAR EXPRESSÃO REGULAR</button>
+            <br><br>
+            <button id='gr-af'>COPIAR AUTÔMATO FINITO</button>
+            <br><br>
+            <b>GRAMÁTICA REGULAR UNITÁRIA (DIREITA)</b>
+            <br><br>
+            <div id='gr-eq'>
+                <input type='text' id='gr-l0' class='gr-leq' maxlength='1' placeholder='S'><input type='text' id='gr-r0' class='gr-req' placeholder='λ'><br>
+            </div>
+            <br>
+            <button id='gr-add'>ADICIONAR EQUAÇÃO</button>
+        </div>
+        <br><hr><br>
+        <div id='div-af'>
+            <button id='af-er'>COPIAR EXPRESSÃO REGULAR</button>
+            <br><br>
+            <button id='af-gr'>COPIAR GRAMÁTICA REGULAR</button>
+            <br><br>
+            <b>AUTÔMATO FINITO DETERMINÍSTICO</b>
+            <br><br>
+            <canvas id='af-canvas'></canvas>
+            <br><br>
+            <div id='af-parent'></div>
+            <button id='af-create'>CRIAR ESTADO</button>
+            <button id='af-mode'>ATUAL: MODO DESCONHECIDO</button>
+            <button id='af-clear'>LIMPAR TUDO</button>
+        </div>
+    </body>
+</html>

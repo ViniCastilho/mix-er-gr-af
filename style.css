@@ -1,0 +1,67 @@
+* {
+    font-family: monospace;
+}
+
+body {
+    padding: 0;
+    border: 0;
+    margin: 2rem;
+    background-color: #E0E0E0;
+}
+
+#er-rule {
+    width: 36rem;
+}
+
+.rule-correct {
+    background-color: #5F5;
+}
+
+.rule-incorrect {
+    background-color: #F55;
+}
+
+.gr-leq {
+    width: 2rem;
+}
+
+.gr-req {
+    width: 16rem;
+}
+
+.af-state {
+	position: absolute;
+	width: 2rem;
+	height: 2rem;
+	
+    font-size: 0.5rem;
+    border-radius: 50%;
+	color: #FFF;
+	background-color: #A50;
+
+	z-index: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	user-select: none;
+}
+
+.af-state.selected {
+	background-color: #0AA;
+}
+
+.af-state.final {
+	background-color: #0A0;
+}
+
+.af-state.selected.final {
+	background-color: #0AA;
+}
+
+.af-state.dragging {
+    cursor: grabbing;
+}
+
+button.unavailable {
+    background-color: #F55;
+}
