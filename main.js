@@ -1,5 +1,5 @@
 let erRule = document.querySelector('#er-rule');
-erRule.addEventListener('keyup', function (ev) {
+erRule.onkeyup = function (ev) {
 	if (erRule.value === '') {
 		erRule.className = '';
 		return;
@@ -15,19 +15,22 @@ erRule.addEventListener('keyup', function (ev) {
 	} else {
 		erRule.className = 'rule-incorrect';
 	}
-});
+}
 
 let grSymbols = {};
-let grEquationCount = 1;
 let grEquationParent = document.querySelector('#gr-eq');
-let grEquationList = [{
-	'left': document.querySelector('gr-l0'),
-	'right': document.querySelector('gr-r0'),
-}];
+let grEquationList = [];
+grEquationList.push(
+	{
+		'left': document.querySelector('#gr-l0'),
+		'right': document.querySelector('#gr-r0'),
+	}
+);
 let grAdd = document.querySelector('#gr-add');
-grAdd.onclick = function (ev) {
+
+grAdd.onclick = function () {
 	let leftSide = document.createElement('input');
-	leftSide.id = `gr-l${grEquationCount}`;
+	leftSide.id = `gr-l${grEquationList.length}`;
 	leftSide.className = 'gr-leq';
 	leftSide.type = 'text';
 	leftSide.placeholder = 'S';
@@ -35,7 +38,7 @@ grAdd.onclick = function (ev) {
 	grEquationParent.appendChild(leftSide);
 
 	let rightSide = document.createElement('input');
-	rightSide.id = `g-rs-${grEquationCount}`;
+	rightSide.id = `gr-r${grEquationList.length}`;
 	rightSide.className = 'gr-req';
 	rightSide.type = 'text';
 	rightSide.placeholder = 'λ';
@@ -43,7 +46,6 @@ grAdd.onclick = function (ev) {
 
 	grEquationParent.appendChild(document.createElement('br'));
 	grEquationList.push({'left': leftSide, 'right': rightSide});
-	grEquationCount++;
 };
 
 let afCanvas = document.querySelector('#af-canvas');
@@ -218,13 +220,79 @@ function redraw() {
 	}
 }
 
+let erClone = document.querySelector('#er-clone');
+let grClone = document.querySelector('#gr-clone');
+let afClone = document.querySelector('#af-clone');
+
+function ertogr() {
+
+}
+
+function ertoaf() {
+
+}
+
+function grtoer() {
+
+}
+
+function grtoaf() {
+	let known = [ document.querySelector('#gr-l0').value ];
+	let final = {};
+	for (let i = 0; i < grEquationList.length; i++) {
+		let left = grEquationList[i].left.value;
+		let right = grEquationList[i].right.value;
+		if (left.length === 0) { continue; }
+		if (!known.includes(left)) { known.push(left); }
+		let next = right.slice(-1);
+		if (right.length === 0 || right === 'λ') {
+			final[left] = true;
+			next = null;
+		}
+		afTransitionStart = known.indexOf(left);
+		if (next === null) {
+			doubleClickState();
+		}
+	}
+}
+
+function aftoer() {
+
+}
+
+function aftogr() {
+	let offset = ('A').charCodeAt(0);
+	let rows = 0;
+	for (let i = 0; i < afConnections.length; i++) {
+		for (let [k, v] of Object.entries(afConnections[i])) {
+			if (grEquationList.length <= rows) {
+				grAdd.onclick();
+			}
+			let left = document.querySelector(`#gr-l${rows}`);
+			let right = document.querySelector(`#gr-r${rows}`);
+			left.value = String.fromCharCode(offset+i);
+			right.value = `${k}${String.fromCharCode(offset+v)}`;
+			rows++;
+		}
+		if (afParent.children[i].classList.contains('final')) {
+			if (grEquationList.length <= rows) {
+				grAdd.onclick();
+			}
+			let left = document.querySelector(`#gr-l${rows}`);
+			let right = document.querySelector(`#gr-r${rows}`);
+			left.value = String.fromCharCode(offset+i);
+			right.value = 'λ';
+			rows++;
+		}
+	}
+}
+
+grClone.onclick = function () { grtoer(); grtoaf(); }
+afClone.onclick = function () { aftoer(); aftogr(); }
+
 document.querySelectorAll('button').forEach((elm, idx) => {
 	let btn = document.querySelector(`#${elm.id}`);
 	if (btn.onclick === null) {
 		btn.className = 'unavailable';
 	}
 });
-
-/*
-	NÃO HÁ TEMPO
-*/
