@@ -48,6 +48,15 @@ grAdd.onclick = function () {
 	grEquationList.push({'left': leftSide, 'right': rightSide});
 };
 
+function grCallClear() {
+	for (let i = 0; i < grEquationList.length; i++) {
+		let left = document.querySelector(`#gr-l${i}`);
+		let right = document.querySelector(`#gr-r${i}`);
+		left.value = '';
+		right.value = '';
+	}
+}
+
 let afCanvas = document.querySelector('#af-canvas');
 afCanvas.width = 720;
 afCanvas.height = 400;
@@ -227,7 +236,89 @@ let grClone = document.querySelector('#gr-clone');
 let afClone = document.querySelector('#af-clone');
 
 function ertogr() {
+	const grammar = [];
+	let currentVarIndex = 65;
 
+	function newVariable() {
+		return String.fromCharCode(currentVarIndex++);
+	}
+
+	function processGroups(subRegex) {
+        let stack = [];
+        let result = "";
+        let groupStart = -1;
+
+        for (let i = 0; i < subRegex.length; i++) {
+            if (subRegex[i] === "(") {
+                if (stack.length === 0) groupStart = i;
+                stack.push("(");
+            } else if (subRegex[i] === ")") {
+                stack.pop();
+                if (stack.length === 0) {
+                    const groupContent = subRegex.slice(groupStart + 1, i);
+                    const groupVar = newVariable();
+                    parseRegex(groupContent, groupVar);
+                    result += groupVar;
+                }
+            } else if (stack.length === 0) {
+                result += subRegex[i];
+            }
+        }
+
+        return result;
+    }
+
+	function parseRegex(subRegex, currentVar) {
+		if (subRegex === '') {
+			// Para subexpressão vazia
+			grammar.push({ left: currentVar, right: 'λ' });
+		} else if (/^[a-zA-Z0-9]$/.test(subRegex)) {
+			// Para um único caractere
+			grammar.push({ left: currentVar, right: subRegex });
+		} else if (subRegex.includes('|')) {
+			// Para alternância (ex.: a|b)
+			const parts = subRegex.split('|');
+			parts.forEach((part) => parseRegex(part, currentVar));
+		} else if (subRegex.includes('*')) {
+			// Para fechamento de Kleene (ex.: a*)
+			const nextVar = newVariable();
+			//grammar.push({ left: currentVar, right: nextVar });
+			parseRegex(subRegex.replace('*', ''), nextVar);
+			grammar.push({ left: nextVar, right: 'λ' });
+			//grammar.push({ left: nextVar, right: `${nextVar}${currentVar}` });
+		} else if (subRegex.includes('+')) {
+			// Para uma ou mais ocorrências (ex.: a+)
+			const nextVar = newVariable();
+			parseRegex(subRegex.replace('+', '*'), currentVar);
+			grammar.push({ left: currentVar, right: `${nextVar}${currentVar}` });
+		} else if (subRegex.includes("(")) {
+            // Para agrupamentos (ex.: (a|b)c)
+            const processedRegex = processGroups(subRegex);
+            parseRegex(processedRegex, currentVar);
+        } else {
+			// Concatenação (ex.: ab)
+			const [first, ...rest] = subRegex.split('');
+			const nextVar = newVariable();
+			grammar.push({ left: currentVar, right: `${first}${nextVar}` });
+			parseRegex(rest.join(''), nextVar);
+		}
+	}
+
+	// Início da conversão
+	parseRegex(erRule.value, 'A');
+	console.log(grammar);
+
+	grCallClear();
+	for (let i = grEquationList.length; i < grammar.length; i++) {
+		grAdd.onclick();
+	}
+
+	for (let i = 0; i < grammar.length; i++) {
+		let left = document.querySelector(`#gr-l${i}`);
+		let right = document.querySelector(`#gr-r${i}`);
+		left.value = grammar[i].left;
+		right.value = grammar[i].right;
+	}
 }
 
 function ertoaf() {
@@ -277,12 +368,13 @@ function grtoaf() {
 }
 
 function aftoer() {
-
+	
 }
 
 function aftogr() {
 	let offset = ('A').charCodeAt(0);
 	let rows = 0;
+	grCallClear();
 	for (let i = 0; i < afConnections.length; i++) {
 		for (let [k, v] of Object.entries(afConnections[i])) {
 			if (grEquationList.length <= rows) {
@@ -307,6 +399,7 @@ function aftogr() {
 	}
 }
 
+erClone.onclick = function () { ertogr(); ertoaf(); }
 grClone.onclick = function () { grtoer(); grtoaf(); }
 afClone.onclick = function () { aftoer(); aftogr(); }
 
